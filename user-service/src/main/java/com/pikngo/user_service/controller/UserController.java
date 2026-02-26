@@ -1,16 +1,26 @@
 package com.pikngo.user_service.controller;
 
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.pikngo.user_service.dto.OtpRequest;
 import com.pikngo.user_service.dto.OtpVerificationRequest;
+import com.pikngo.user_service.dto.ProfileUpdateRequest;
 import com.pikngo.user_service.dto.UserRegistrationRequest;
 import com.pikngo.user_service.entity.User;
 import com.pikngo.user_service.service.AuthService;
 import com.pikngo.user_service.service.UserService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -36,10 +46,18 @@ public class UserController {
     public ResponseEntity<String> verifyOtp(@Valid @RequestBody OtpVerificationRequest request) {
         boolean isValid = authService.verifyOtp(request);
         if (isValid) {
-            // In a real scenario, generate and return a JWT token here
             return ResponseEntity.ok("Login successful");
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired OTP");
         }
+    }
+
+    // Developer 3: Profile update endpoint
+    @PatchMapping("/{userId}/profile")
+    public ResponseEntity<User> updateProfile(
+            @PathVariable UUID userId,
+            @RequestBody ProfileUpdateRequest request) {
+        User updatedUser = userService.updateProfile(userId, request);
+        return ResponseEntity.ok(updatedUser);
     }
 }
