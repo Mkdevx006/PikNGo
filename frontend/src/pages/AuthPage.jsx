@@ -37,7 +37,7 @@ const AuthPage = ({ onLogin }) => {
     const [showForgot, setShowForgot] = useState(false);
 
     // Login States
-    const [loginMethod, setLoginMethod] = useState('otp');
+    const [loginMethod, setLoginMethod] = useState('phoneOtp'); // 'phoneOtp', 'emailOtp', 'password'
     const [loginIdentifier, setLoginIdentifier] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [loginOtpCode, setLoginOtpCode] = useState('');
@@ -89,13 +89,21 @@ const AuthPage = ({ onLogin }) => {
         e.preventDefault();
         setLoading(true);
         setError('');
-        if (loginMethod === 'otp') {
+        if (loginMethod === 'phoneOtp') {
             try {
                 await authApi.sendOtp(loginIdentifier);
                 setLoginStep(2);
                 setOtpTimer(30);
             } catch (err) {
                 setError(err.response?.data?.message || 'Failed to send OTP.');
+            } finally { setLoading(false); }
+        } else if (loginMethod === 'emailOtp') {
+            try {
+                await authApi.sendEmailOtp(loginIdentifier);
+                setLoginStep(2);
+                setOtpTimer(30);
+            } catch (err) {
+                setError(err.response?.data?.message || 'Failed to send Email OTP.');
             } finally { setLoading(false); }
         } else {
             try {
@@ -154,7 +162,11 @@ const AuthPage = ({ onLogin }) => {
         if (otpTimer > 0) return;
         setLoading(true);
         try {
-            await authApi.sendOtp(loginIdentifier);
+            if (loginMethod === 'emailOtp') {
+                await authApi.sendEmailOtp(loginIdentifier);
+            } else {
+                await authApi.sendOtp(loginIdentifier);
+            }
             setOtpTimer(30);
             setSuccess('OTP resent successfully!');
         } catch (err) {
@@ -167,7 +179,12 @@ const AuthPage = ({ onLogin }) => {
         setLoading(true);
         setError('');
         try {
-            const response = await authApi.verifyOtp({ phoneNumber: loginIdentifier, otpCode: loginOtpCode });
+            let response;
+            if (loginMethod === 'emailOtp') {
+                response = await authApi.verifyEmailOtp({ email: loginIdentifier, otpCode: loginOtpCode });
+            } else {
+                response = await authApi.verifyOtp({ phoneNumber: loginIdentifier, otpCode: loginOtpCode });
+            }
             completeAuth(response.data);
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid OTP.');
@@ -314,7 +331,8 @@ const AuthPage = ({ onLogin }) => {
                                         {loginStep === 2 && <p className="auth-subtitle">{`Code sent to ${loginIdentifier}`}</p>}
                                         {loginStep === 1 && (
                                             <div className="method-toggle">
-                                                <button className={loginMethod === 'otp' ? 'active' : ''} onClick={() => { setLoginMethod('otp'); setLoginIdentifier(''); setError(''); }}>OTP</button>
+                                                <button className={loginMethod === 'phoneOtp' ? 'active' : ''} onClick={() => { setLoginMethod('phoneOtp'); setLoginIdentifier(''); setError(''); }}>Phone OTP</button>
+                                                <button className={loginMethod === 'emailOtp' ? 'active' : ''} onClick={() => { setLoginMethod('emailOtp'); setLoginIdentifier(''); setError(''); }}>Email OTP</button>
                                                 <button className={loginMethod === 'password' ? 'active' : ''} onClick={() => { setLoginMethod('password'); setLoginIdentifier(''); setError(''); }}>Password</button>
                                             </div>
                                         )}
@@ -323,10 +341,10 @@ const AuthPage = ({ onLogin }) => {
                                             {loginStep === 1 ? (
                                                 <>
                                                     <div className="form-group" style={{ animationDelay: '0.1s' }}>
-                                                        <label>{loginMethod === 'otp' ? 'Phone' : 'Email/Phone'}</label>
+                                                        <label>{loginMethod === 'phoneOtp' ? 'Phone' : loginMethod === 'emailOtp' ? 'Email' : 'Email/Phone'}</label>
                                                         <div className="input-wrapper">
-                                                            {loginMethod === 'otp' ? <Phone size={18} className="input-icon" /> : <Mail size={18} className="input-icon" />}
-                                                            {loginMethod === 'otp' ? (
+                                                            {loginMethod === 'phoneOtp' ? <Phone size={18} className="input-icon" /> : <Mail size={18} className="input-icon" />}
+                                                            {loginMethod === 'phoneOtp' ? (
                                                                 <input
                                                                     type="text"
                                                                     value={loginIdentifier}
@@ -336,9 +354,10 @@ const AuthPage = ({ onLogin }) => {
                                                                 />
                                                             ) : (
                                                                 <input
-                                                                    type="text"
+                                                                    type={loginMethod === 'emailOtp' ? 'email' : 'text'}
                                                                     value={loginIdentifier}
                                                                     onChange={(e) => setLoginIdentifier(e.target.value)}
+                                                                    placeholder={loginMethod === 'emailOtp' ? 'name@example.com' : 'Email or Phone'}
                                                                     required
                                                                 />
                                                             )}

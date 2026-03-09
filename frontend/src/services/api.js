@@ -23,16 +23,31 @@ export const authApi = {
     loginWithPassword: (credentials) => api.post('/users/login/password', credentials),
     sendOtp: (phoneNumber) => api.post(`/users/login/send-otp?phoneNumber=${phoneNumber}`),
     verifyOtp: (otpData) => api.post('/users/login/verify-otp', otpData),
-    forgotPassword: (email) => api.post(`/users/forgot-password?email=${email}`),
+    sendEmailOtp: (email) => api.post(`/users/login/email-otp?email=${encodeURIComponent(email)}`),
+    verifyEmailOtp: (data) => api.post('/users/verify/email-otp', data),
+    forgotPassword: (email) => api.post(`/users/forgot-password?email=${encodeURIComponent(email)}`),
     resetPassword: (token, newPassword) => api.post(`/users/reset-password?token=${token}&newPassword=${newPassword}`),
     getProfile: () => api.get('/users/profile'),
     updateProfile: (profileData) => api.patch('/users/profile', profileData),
     deleteProfile: (softDelete = true) => api.delete(`/users/delete?softDelete=${softDelete}`),
-    getAddresses: (userId) => api.get(`/users/${userId}/addresses`),
-    addAddress: (userId, addressData) => api.post(`/users/${userId}/addresses`, addressData),
-    updateAddress: (userId, addressId, addressData) => api.put(`/users/${userId}/addresses/${addressId}`, addressData),
-    deleteAddress: (userId, addressId) => api.delete(`/users/${userId}/addresses/${addressId}`),
-    forgotPassword: (email) => api.post(`/users/forgot-password?email=${email}`),
+    // New profile-based address endpoints (recommended)
+    getAddresses: () => api.get('/users/profile/addresses'),
+    addAddress: (addressData) => api.post('/users/profile/addresses', addressData),
+    updateAddress: (addressId, addressData) => api.put(`/users/profile/addresses/${addressId}`, addressData),
+    deleteAddress: (addressId) => api.delete(`/users/profile/addresses/${addressId}`),
+};
+
+export const placeApi = {
+    search: (query) => api.get(`/places/search?query=${encodeURIComponent(query)}`),
+    getByCity: (city) => api.get(`/places/city/${city}`),
+    getByState: (state) => api.get(`/places/state/${state}`),
+    getAll: () => api.get('/places'),
+};
+
+export const restaurantApi = {
+    searchRestaurants: (source, destination) => api.get('/restaurants/search', { params: { source, destination } }),
+    getNearbyRestaurants: (latitude, longitude, maxDistanceKm = 50) => api.get('/restaurants/nearby', { params: { latitude, longitude, maxDistanceKm } }),
+    getRestaurantById: (id) => api.get(`/restaurants/${id}`),
 };
 
 export default api;

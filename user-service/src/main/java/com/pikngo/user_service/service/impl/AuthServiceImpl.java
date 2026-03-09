@@ -172,4 +172,43 @@ public class AuthServiceImpl implements AuthService {
         tokenRepository.delete(resetToken);
         log.info("Password successfully reset for user: {}", user.getEmail());
     }
+
+    @Override
+    public void sendEmailOtp(String email) {
+        String otpCode = String.format("%06d", new Random().nextInt(999999));
+        log.info("Generated Email OTP for {}: {}", email, otpCode);
+
+        OtpVerification otp = OtpVerification.builder()
+                .email(email)
+                .otpCode(otpCode)
+                .expiryTime(LocalDateTime.now().plusMinutes(5))
+                .isUsed(false)
+                .build();
+
+        otpRepository.save(otp);
+        emailService.sendEmail(email, "PikNGo Verification Code", 
+                "Your PikNGo verification code is: " + otpCode + "\n\nThis code will expire in 5 minutes.");
+    }
+
+    @Override
+    public boolean verifyEmailOtp(String email, String code) {
+        return otpRepository.findTopByEmailAndIsUsedOrderByCreatedAtDesc(email, false)
+                .map(otp -> {
+                    if (otp.getExpiryTime().isBefore(LocalDateTime.now())) {
+                        log.warn("Email OTP expired for {}", email);
+                        return false;
+                    }
+                    if (otp.getOtpCode().equals(code)) {
+                        otp.setUsed(true);
+                        otpRepository.save(otp);
+                        log.info("Email OTP verified successfully for {}", email);
+                        return true;
+                    }
+                    log.warn("Invalid Email OTP code for {}", email);
+                    return false;
+                }).orElseGet(() -> {
+                    log.warn("No unused Email OTP found for {}", email);
+                    return false;
+                });
+    }
 }

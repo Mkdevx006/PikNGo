@@ -7,6 +7,7 @@ import AuthPage from './pages/AuthPage';
 import ProfileScreen from './pages/ProfileScreen';
 import AboutPage from './pages/AboutPage';
 import MenuPage from './pages/MenuPage';
+import DestinationPage from './pages/DestinationPage';
 import './App.css';
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
               <Route path="/profile" element={isLoggedIn ? <ProfileScreen /> : <Navigate to="/login" />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/menu/:restaurantId" element={<MenuPage />} />
+              <Route path="/destination" element={<DestinationPage />} />
             </Routes>
           </main>
         </div>

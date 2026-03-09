@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, Camera, Edit2, Shield, Trash2, Lock, ShieldCheck } from 'lucide-react';
-import { authApi } from '../services/api';
+import { authApi, placeApi } from '../services/api';
 import './Profile.css';
 
 const ProfileScreen = () => {
@@ -11,12 +11,15 @@ const ProfileScreen = () => {
     const [success, setSuccess] = useState('');
     const [showAddressForm, setShowAddressForm] = useState(false);
     const [newAddress, setNewAddress] = useState({ addressLine1: '', addressLine2: '', city: '', state: '', pincode: '' });
+    const [placeSuggestions, setPlaceSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [searchTimeout, setSearchTimeout] = useState(null);
 
     const fetchProfile = async () => {
         try {
             const response = await authApi.getProfile();
             setUser(response.data);
-            fetchAddresses(response.data.id);
+            fetchAddresses();
         } catch (err) {
             setError('Failed to load profile');
         } finally {
@@ -24,9 +27,9 @@ const ProfileScreen = () => {
         }
     };
 
-    const fetchAddresses = async (userId) => {
+    const fetchAddresses = async () => {
         try {
-            const response = await authApi.getAddresses(userId);
+            const response = await authApi.getAddresses();
             setAddresses(response.data);
         } catch (err) {
             console.error('Failed to fetch addresses', err);
@@ -40,11 +43,11 @@ const ProfileScreen = () => {
     const handleAddAddress = async (e) => {
         e.preventDefault();
         try {
-            await authApi.addAddress(user.id, newAddress);
+            await authApi.addAddress(newAddress);
             setSuccess('Address added successfully!');
             setShowAddressForm(false);
             setNewAddress({ addressLine1: '', addressLine2: '', city: '', state: '', pincode: '' });
-            fetchAddresses(user.id);
+            fetchAddresses();
         } catch (err) {
             setError('Failed to add address');
         }
@@ -53,11 +56,49 @@ const ProfileScreen = () => {
     const handleDeleteAddress = async (addressId) => {
         if (!window.confirm('Are you sure you want to delete this address?')) return;
         try {
-            await authApi.deleteAddress(user.id, addressId);
-            fetchAddresses(user.id);
+            await authApi.deleteAddress(addressId);
+            fetchAddresses();
         } catch (err) {
             setError('Failed to delete address');
         }
+    };
+
+    // Place search with debounce
+    const handlePlaceSearch = async (query) => {
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        if (!query || query.trim().length < 2) {
+            setPlaceSuggestions([]);
+            setShowSuggestions(false);
+            return;
+        }
+
+        const timeout = setTimeout(async () => {
+            try {
+                const response = await placeApi.search(query);
+                setPlaceSuggestions(response.data || []);
+                setShowSuggestions(true);
+            } catch (err) {
+                console.error('Failed to search places', err);
+                setPlaceSuggestions([]);
+            }
+        }, 300); // 300ms debounce
+
+        setSearchTimeout(timeout);
+    };
+
+    const handleSelectPlace = (place) => {
+        setNewAddress({
+            ...newAddress,
+            addressLine1: place.displayText || place.name,
+            city: place.city || '',
+            state: place.state || '',
+            pincode: place.pincode || ''
+        });
+        setPlaceSuggestions([]);
+        setShowSuggestions(false);
     };
 
     const handleDeleteAccount = async (soft = true) => {
@@ -181,11 +222,38 @@ const ProfileScreen = () => {
 
                         {showAddressForm ? (
                             <form onSubmit={handleAddAddress} className="mt-4 grid grid-cols-2 gap-3 glass p-4 rounded-xl">
-                                <input className="span-2 bg-transparent border-b border-gray-600 p-2" placeholder="Address Line 1" value={newAddress.addressLine1} onChange={e => setNewAddress({ ...newAddress, addressLine1: e.target.value })} required />
-                                <input className="span-2 bg-transparent border-b border-gray-600 p-2" placeholder="Address Line 2 (Optional)" value={newAddress.addressLine2} onChange={e => setNewAddress({ ...newAddress, addressLine2: e.target.value })} />
+                                <div className="span-2 relative">
+                                    <input 
+                                        className="w-full bg-transparent border-b border-gray-600 p-2" 
+                                        placeholder="Search for a place or enter address manually" 
+                                        value={newAddress.addressLine1} 
+                                        onChange={e => {
+                                            setNewAddress({ ...newAddress, addressLine1: e.target.value });
+                                            handlePlaceSearch(e.target.value);
+                                        }}
+                                        onFocus={() => placeSuggestions.length > 0 && setShowSuggestions(true)}
+                                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                        required 
+                                    />
+                                    {showSuggestions && placeSuggestions.length > 0 && (
+                                        <div className="absolute z-50 w-full bg-gray-800 border border-gray-700 rounded-lg shadow-xl max-h-60 overflow-y-auto mt-1">
+                                            {placeSuggestions.map(place => (
+                                                <div
+                                                    key={place.id}
+                                                    className="p-3 hover:bg-gray-700 cursor-pointer transition-colors"
+                                                    onClick={() => handleSelectPlace(place)}
+                                                >
+                                                    <div className="font-semibold text-white">{place.name}</div>
+                                                    <div className="text-sm text-gray-400">{place.displayText || `${place.city}, ${place.state}`}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <input className="bg-transparent border-b border-gray-600 p-2" placeholder="Address Line 2 (Optional)" value={newAddress.addressLine2} onChange={e => setNewAddress({ ...newAddress, addressLine2: e.target.value })} />
                                 <input className="bg-transparent border-b border-gray-600 p-2" placeholder="City" value={newAddress.city} onChange={e => setNewAddress({ ...newAddress, city: e.target.value })} required />
                                 <input className="bg-transparent border-b border-gray-600 p-2" placeholder="State" value={newAddress.state} onChange={e => setNewAddress({ ...newAddress, state: e.target.value })} required />
-                                <input className="bg-transparent border-b border-gray-600 p-2" placeholder="Pincode" value={newAddress.pincode} onChange={e => setNewAddress({ ...newAddress, pincode: e.target.value })} required />
+                                <input className="bg-transparent border-b border-gray-600 p-2" placeholder="Pincode" value={newAddress.pincode} onChange={e => setNewAddress({ ...newAddress, pincode: e.target.value })} pattern="[0-9]{6}" title="Please enter a 6-digit pincode" required />
                                 <div className="span-2 flex gap-2">
                                     <button type="submit" className="btn-primary-slim">Save</button>
                                     <button type="button" onClick={() => setShowAddressForm(false)} className="btn-secondary-slim">Cancel</button>

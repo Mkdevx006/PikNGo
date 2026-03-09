@@ -92,6 +92,26 @@ public class UserServiceImpl implements UserService {
             user.setUserPassword(passwordEncoder.encode(request.getPassword()));
         }
 
+        // Handle address update - create new address if provided
+        if (request.getAddress() != null && !request.getAddress().isBlank()) {
+            // Check if user has existing addresses
+            if (user.getAddresses() == null || user.getAddresses().isEmpty()) {
+                // Create new address with TBD details
+                Address address = Address.builder()
+                        .addressLine1(request.getAddress())
+                        .city("TBD")
+                        .state("TBD")
+                        .pincode("000000")
+                        .user(user)
+                        .build();
+                user.setAddresses(Collections.singletonList(address));
+            } else {
+                // Update first existing address
+                Address existingAddress = user.getAddresses().get(0);
+                existingAddress.setAddressLine1(request.getAddress());
+            }
+        }
+
         return userRepository.save(user);
     }
 

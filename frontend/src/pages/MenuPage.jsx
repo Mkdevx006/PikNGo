@@ -33,7 +33,7 @@ const restaurantData = {
         banner: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=2072&auto=format&fit=crop',
         menu: [
             { id: 201, name: 'Paneer Tikka Platter', price: 280, desc: 'Fresh cottage cheese cubes marinated in spicy yogurt and grilled.', image: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?q=80&w=1000', category: 'Starters' },
-            { id: 202, name: 'Butter Chicken Elite', price: 420, desc: 'Classic murgh makhani with a creamy, velvety tomato gravy.', image: 'https://images.unsplash.com/photo-1603894584373-5ac82b245004?q=80&w=1000', category: 'Main' },
+            { id: 202, name: 'Butter Chicken Elite', price: 420, desc: 'Classic murgh makhani with a creamy, velvety tomato gravy.', image: '/assets/food-2.png', category: 'Main' },
             { id: 203, name: 'Garlic Butter Naan', price: 60, desc: 'Leavened clay oven bread topped with fresh garlic and butter.', image: 'https://images.unsplash.com/photo-1601050638917-3f80fc014923?q=80&w=1000', category: 'Breads' },
         ]
     }

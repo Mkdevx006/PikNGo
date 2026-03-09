@@ -24,8 +24,11 @@ public class OtpVerification {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "phone_number", nullable = false, length = 15)
+    @Column(name = "phone_number", length = 15)
     private String phoneNumber;
+
+    @Column(name = "email", length = 100)
+    private String email;
 
     @Column(name = "otp_code", nullable = false, length = 6)
     private String otpCode;

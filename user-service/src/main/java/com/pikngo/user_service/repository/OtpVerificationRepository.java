@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface OtpVerificationRepository extends JpaRepository<OtpVerification, UUID> {
     Optional<OtpVerification> findTopByPhoneNumberAndIsUsedOrderByCreatedAtDesc(String phoneNumber, boolean isUsed);
+
+    Optional<OtpVerification> findTopByEmailAndIsUsedOrderByCreatedAtDesc(String email, boolean isUsed);
 }

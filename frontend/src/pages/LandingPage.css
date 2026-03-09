@@ -181,6 +181,216 @@ body:not(.dark-theme) .step-card p {
     background: linear-gradient(to bottom, var(--bg-deep), var(--bg-navy));
 }
 
+/* Explore Meals Section */
+.explore-meals-section {
+    padding: 160px 0;
+    background: linear-gradient(to bottom, var(--bg-deep), rgba(230, 74, 25, 0.02));
+}
+
+body:not(.dark-theme) .explore-meals-section {
+    background: linear-gradient(180deg, #f9f5f1 0%, #f4ece4 100%);
+}
+
+.meal-categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 6rem;
+}
+
+.meal-category-card {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-card);
+}
+
+.meal-category-card:hover {
+    transform: translateY(-12px);
+    box-shadow: var(--shadow-float);
+}
+
+.category-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.category-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.meal-category-card:hover .category-image img {
+    transform: scale(1.1);
+}
+
+.category-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+.category-content {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.category-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -3.5rem auto 1rem;
+    position: relative;
+    z-index: 2;
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+}
+
+.category-content h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.category-items {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Popular Meals */
+.popular-meals-section {
+    margin-top: 4rem;
+}
+
+.popular-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.popular-header h3 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.view-all-btn {
+    background: var(--bg-glass);
+    border: 2px solid var(--accent-orange);
+    color: var(--accent-orange);
+    padding: 0.75rem 1.5rem;
+    border-radius: 100px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.view-all-btn:hover {
+    background: var(--accent-orange);
+    color: white;
+    transform: translateX(5px);
+}
+
+.popular-meals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.popular-meal-card {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s ease;
+}
+
+.popular-meal-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-float);
+}
+
+.meal-image {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+}
+
+.meal-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.popular-meal-card:hover .meal-image img {
+    transform: scale(1.05);
+}
+
+.meal-rating {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.meal-info {
+    padding: 1.25rem;
+}
+
+.meal-info h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.meal-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.meal-price {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--accent-orange);
+}
+
+.meal-time {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
 /* light mode trending — subtle warm sand stripe */
 body:not(.dark-theme) .trending-section {
     background: linear-gradient(180deg, #f4ece4 0%, #e8dfd5 100%);
@@ -589,6 +799,21 @@ body:not(.dark-theme) .social-icon {
     .cta-content h2 {
         font-size: 3rem;
     }
+
+    .meal-categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .popular-meals-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .popular-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
 }
 
 /* --- Premium Background Aesthetics --- */
@@ -644,4 +869,32 @@ body:not(.dark-theme) .social-icon {
 
 .blob-3 {
     background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+}
+
+/* Location Info */
+.location-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #16a34a;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.dark-theme .location-info {
+    color: #4ade80;
+}
+
+/* Loading Container */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.loading-container p {
+    font-size: 1.1rem;
+    font-weight: 500;
 }

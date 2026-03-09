@@ -31,6 +31,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/users/register", "/api/v1/users/login/**").permitAll()
+                        .requestMatchers("/api/v1/users/verify/**").permitAll()
+                        .requestMatchers("/api/v1/users/forgot-password", "/api/v1/users/reset-password").permitAll()
+                        .requestMatchers("/api/v1/restaurants/**").permitAll()
+                        .requestMatchers("/api/v1/places/**").permitAll() // Public access for place search
                         .anyRequest().authenticated());
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

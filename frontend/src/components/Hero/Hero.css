@@ -193,7 +193,42 @@ body:not(.dark-theme) .hero-subtitle {
 .search-pill {
     display: flex;
     align-items: center;
+    justify-content: center;
+    gap: 1rem;
     width: 100%;
+}
+
+.location-btn {
+    background: var(--bg-glass);
+    border: 2px solid var(--accent-orange);
+    padding: 1.2rem 2.5rem;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--accent-orange);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
+}
+
+.location-btn:hover {
+    background: var(--accent-orange);
+    color: white;
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 15px 35px var(--accent-orange-glow);
+}
+
+body:not(.dark-theme) .location-btn {
+    color: var(--accent-orange);
+    border-color: var(--accent-orange);
+}
+
+body:not(.dark-theme) .location-btn:hover {
+    background: var(--accent-orange);
+    color: white;
 }
 
 .search-input-group {
@@ -373,6 +408,38 @@ body:not(.dark-theme) .feature-pill {
     font-size: 1.2rem;
 }
 
+.destination-btn {
+    margin-left: 8px;
+    padding: 10px 20px;
+    background: var(--accent-orange);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px var(--accent-orange-glow);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.destination-btn:hover {
+    background: var(--accent-orange-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--accent-orange-glow);
+}
+
+.dark-theme .destination-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.dark-theme .destination-btn:hover {
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
 @media (max-width: 1024px) {
     .hero-title {
         font-size: 4.5rem;
@@ -391,8 +458,13 @@ body:not(.dark-theme) .feature-pill {
 
     .search-pill {
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1rem;
         padding: 1.5rem;
+    }
+
+    .location-btn {
+        width: 100%;
+        justify-content: center;
     }
 
     .search-divider {

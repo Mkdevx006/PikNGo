@@ -1,8 +1,7 @@
--- Database schema for PikNGo User Service
--- This can be used to manually setup the database or as a reference for Flyway/Liquibase
+-- V1.0__initial_schema.sql
+-- Initial database schema for PikNGo User Service
 
 -- Users Table
--- Stores basic user information after registration
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     first_name VARCHAR(50) NOT NULL,
@@ -11,12 +10,14 @@ CREATE TABLE IF NOT EXISTS users (
     phone_number VARCHAR(15) UNIQUE NOT NULL,
     address TEXT,
     is_active BOOLEAN DEFAULT TRUE,
+    is_deleted BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(100),
+    last_modified_by VARCHAR(100)
 );
 
 -- OTP Verifications Table
--- Stores temporary OTPs for login and verification
 CREATE TABLE IF NOT EXISTS otp_verifications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     phone_number VARCHAR(15) NOT NULL,
@@ -27,7 +28,6 @@ CREATE TABLE IF NOT EXISTS otp_verifications (
 );
 
 -- Restaurants Table
--- Stores restaurant information for discovery
 CREATE TABLE IF NOT EXISTS restaurants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     restaurant_name VARCHAR(255) NOT NULL,
@@ -41,7 +41,6 @@ CREATE TABLE IF NOT EXISTS restaurants (
 );
 
 -- Addresses Table
--- Stores user addresses for delivery/pickup
 CREATE TABLE IF NOT EXISTS addresses (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     address_line_1 VARCHAR(255) NOT NULL,
@@ -49,8 +48,6 @@ CREATE TABLE IF NOT EXISTS addresses (
     city VARCHAR(100) NOT NULL,
     state VARCHAR(100) NOT NULL,
     pincode VARCHAR(10) NOT NULL,
-    latitude DOUBLE PRECISION,
-    longitude DOUBLE PRECISION,
     user_id UUID NOT NULL REFERENCES users(id),
     created_ts TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     modified_ts TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -58,7 +55,6 @@ CREATE TABLE IF NOT EXISTS addresses (
 );
 
 -- Password Reset Tokens Table
--- Stores tokens for password reset functionality
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     token VARCHAR(255) NOT NULL UNIQUE,
@@ -66,3 +62,10 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
     expiry_date TIMESTAMP WITH TIME ZONE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create indexes for better query performance
+CREATE INDEX IF NOT EXISTS idx_users_phone_number ON users(phone_number);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON addresses(user_id);
+CREATE INDEX IF NOT EXISTS idx_otp_phone_number ON otp_verifications(phone_number);
+CREATE INDEX IF NOT EXISTS idx_restaurants_location ON restaurants(latitude, longitude);

@@ -111,6 +111,39 @@ public class UserController {
     }
 
     // --- Address Management ---
+    @GetMapping("/profile/addresses")
+    public ResponseEntity<java.util.List<Address>> getMyAddresses(java.security.Principal principal) {
+        String phoneNumber = principal.getName();
+        User user = userService.getUserByPhoneNumber(phoneNumber);
+        return ResponseEntity.ok(addressService.getAddressesByUserId(user.getId()));
+    }
+
+    @PostMapping("/profile/addresses")
+    public ResponseEntity<Address> addMyAddress(@Valid @RequestBody Address address, java.security.Principal principal) {
+        String phoneNumber = principal.getName();
+        User user = userService.getUserByPhoneNumber(phoneNumber);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(addressService.addAddress(user.getId(), address));
+    }
+
+    @PutMapping("/profile/addresses/{addressId}")
+    public ResponseEntity<Address> updateMyAddress(@PathVariable java.util.UUID addressId,
+            @Valid @RequestBody Address address, java.security.Principal principal) {
+        String phoneNumber = principal.getName();
+        User user = userService.getUserByPhoneNumber(phoneNumber);
+        return ResponseEntity.ok(addressService.updateAddress(user.getId(), addressId, address));
+    }
+
+    @DeleteMapping("/profile/addresses/{addressId}")
+    public ResponseEntity<Void> deleteMyAddress(@PathVariable java.util.UUID addressId,
+            java.security.Principal principal) {
+        String phoneNumber = principal.getName();
+        User user = userService.getUserByPhoneNumber(phoneNumber);
+        addressService.deleteAddress(user.getId(), addressId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Legacy endpoints (kept for backward compatibility)
     @GetMapping("/{userId}/addresses")
     public ResponseEntity<java.util.List<Address>> getAddresses(@PathVariable java.util.UUID userId) {
         return ResponseEntity.ok(addressService.getAddressesByUserId(userId));
@@ -130,6 +163,13 @@ public class UserController {
         return ResponseEntity.ok(addressService.updateAddress(userId, addressId, address));
     }
 
+    @DeleteMapping("/{userId}/addresses/{addressId}")
+    public ResponseEntity<Void> deleteAddress(@PathVariable java.util.UUID userId,
+            @PathVariable java.util.UUID addressId) {
+        addressService.deleteAddress(userId, addressId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/forgot-password")
     public ResponseEntity<com.pikngo.user_service.dto.ApiResponse<String>> forgotPassword(@RequestParam String email) {
         authService.processForgotPassword(email);
@@ -141,5 +181,33 @@ public class UserController {
             @RequestParam String newPassword) {
         authService.resetPassword(token, newPassword);
         return ResponseEntity.ok(com.pikngo.user_service.dto.ApiResponse.success("Password successfully reset", null));
+    }
+
+    // --- Email OTP Login ---
+    @PostMapping("/login/email-otp")
+    public ResponseEntity<Void> sendEmailOtp(@RequestParam String email) {
+        authService.sendEmailOtp(email);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/verify/email-otp")
+    public ResponseEntity<JwtResponse> verifyEmailOtp(@Valid @RequestBody com.pikngo.user_service.dto.EmailOtpRequest request) {
+        boolean isValid = authService.verifyEmailOtp(request.getEmail(), request.getOtpCode());
+        if (!isValid) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Check if user exists in database
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not registered with email: " + request.getEmail()));
+
+        // Generate JWT
+        String token = jwtUtils.generateToken(user.getEmail());
+        return ResponseEntity.ok(JwtResponse.builder()
+                .token(token)
+                .phoneNumber(user.getPhoneNumber())
+                .userId(user.getId())
+                .build());
     }
 }

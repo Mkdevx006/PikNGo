@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Navigation, ArrowRight } from 'lucide-react';
+import { Search, MapPin, Navigation, Utensils } from 'lucide-react';
 import './Hero.css';
 
 const Hero = () => {
@@ -48,23 +48,12 @@ const Hero = () => {
 
                 <div className="search-wrapper glass animate-fade-in">
                     <div className="search-pill">
-                        <div className="search-input-group">
-                            <MapPin size={18} className="search-icon" />
-                            <div className="input-box">
-                                <label>Starting From</label>
-                                <input type="text" placeholder="Entry City" />
-                            </div>
-                        </div>
-                        <div className="search-divider"></div>
-                        <div className="search-input-group">
-                            <Navigation size={18} className="search-icon" />
-                            <div className="input-box">
-                                <label>Heading To</label>
-                                <input type="text" placeholder="Destination" />
-                            </div>
-                        </div>
-                        <button className="search-action-btn">
-                            <Search size={20} />
+                        <button className="location-btn" onClick={() => navigate('/destination')}>
+                            <MapPin size={18} />
+                            <span>Add Your Location</span>
+                        </button>
+                        <button className="search-action-btn" onClick={() => document.getElementById('explore-meals')?.scrollIntoView({ behavior: 'smooth' })}>
+                            <Utensils size={20} />
                             <span>Explore Meals</span>
                         </button>
                     </div>
